@@ -1,7 +1,9 @@
 import streamlit as st
 
 ## page configuration settings
-st.set_page_config(page_title="customer-churn", page_icon="🔁👋", layout="wide")
+st.set_page_config(
+    page_title="customer-churn", page_icon=":repeat: :wave:", layout="wide"
+)
 
 
 ## put title element in container
@@ -10,6 +12,10 @@ with st.container(border=True):
         "<h1 style='text-align: center; color: yellow; font-size: 36px;'>Welcome to our Customer Churn Prediction App! 🔄👋</h1>",
         unsafe_allow_html=True,
     )
+    st.markdown(
+        "<style>div.block-container{padding-top:1rem;}</style>", unsafe_allow_html=True
+    )
+
     st.write(
         """
        Our app utilizes trained machine learning model to analyze customer characteristics 
@@ -25,7 +31,6 @@ with st.container(border=True):
        """
     )
 
-st.divider()
 col1, col2 = st.columns(2)
 
 with col1:

@@ -2,8 +2,11 @@ import streamlit as st
 import pyodbc
 import pandas as pd
 
-
-st.title("Customer Churn Data")
+st.set_page_config(page_title="Churn Data", page_icon=":chart_with_upwards_trend:")
+st.title(":chart_with_upwards_trend: Customer Churn Data")
+st.markdown(
+    "<style>div.block-container{padding-top:1rem;}</style>", unsafe_allow_html=True
+)
 
 
 st.write(
@@ -50,7 +53,7 @@ def run_query(query):
         return cur.fetchall(), cur.description
 
 
-rows, description = run_query("SELECT TOP 50 * FROM dbo.LP2_Telco_churn_first_3000;")
+rows, description = run_query("SELECT * FROM dbo.LP2_Telco_churn_first_3000;")
 
 columns = [column[0] for column in description]
 
