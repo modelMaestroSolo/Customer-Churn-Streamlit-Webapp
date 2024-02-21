@@ -1,6 +1,11 @@
 import streamlit as st
 import pyodbc
 import pandas as pd
+import requests
+import os
+
+
+## set page configuration, title and description
 
 st.set_page_config(page_title="Churn Data", page_icon=":chart_with_upwards_trend:")
 st.title(":chart_with_upwards_trend: Customer Churn Data")
@@ -24,6 +29,8 @@ st.write(
        """
 )
 
+
+## obtain data from data base
 
 # Initialize connection.
 # Uses st.cache_resource to only run once.
@@ -55,13 +62,28 @@ def run_query(query):
 
 rows, description = run_query("SELECT * FROM dbo.LP2_Telco_churn_first_3000;")
 
-columns = [column[0] for column in description]
+columns = [column[0] for column in description] # obtain column names. 
 
-tab1, tab2, tab3 = st.tabs(["Data Preview", "Data Structure", "Learn About Features"])
+df_database = pd.DataFrame.from_records(rows, columns=columns) #create dataframe from db data
+
+
+## obtain data from github repo
+
+url_github = "https://github.com/Azubi-Africa/Career_Accelerator_LP2-Classifcation/blob/main/LP2_Telco-churn-second-2000.csv"
+response = requests.get(url_github)
+
+# check if download was successful
+if response.status_code == 200:
+    
+    
+
+
+
+
+tab1, tab2, tab3 = st.tabs(["Data Preview", "Data Surface Properties", "Content And Quality Assessment"])
 
 with tab1:
     st.header("Proprietory Data from Vodafone")
-    df = pd.DataFrame.from_records(rows, columns=columns)
     selected_features = st.multiselect(
         "View specific features?",
         options=["All Columns"] + columns,
