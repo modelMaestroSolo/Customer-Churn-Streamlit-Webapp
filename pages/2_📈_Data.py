@@ -151,7 +151,53 @@ with tab1:
     st.write(f"Number of columns: {data_train.shape[1]}")
 
 with tab2:
-    st.header("Learn about how the data is organized in the table and format".title())
+    st.header("Data Surface Properties".title())
+    st.markdown(
+        """
+                
+    **Data Set Name:** Telco Churn Dataset.
+
+    **Abstract:**  The dataset contains comprehensive information about the characteristics and behaviours of customers, including details about whether or not they churn.
+
+    **Features:** 
+    <ul>
+  <li>customerID</li>
+  <li>gender</li>
+  <li>SeniorCitizen</li>
+  <li>Partner</li>
+  <li>Dependents</li>
+  <li>tenure</li>
+  <li>PhoneService</li>
+  <li>MultipleLines</li>
+  <li>InternetService</li>
+  <li>OnlineSecurity</li>
+  <li>OnlineBackup</li>
+  <li>DeviceProtection</li>
+  <li>TechSupport</li>
+  <li>StreamingTV</li>
+  <li>StreamingMovies</li>
+  <li>Contract</li>
+  <li>PaperlessBilling</li>
+  <li>PaymentMethod</li>
+  <li>MonthlyCharges</li>
+  <li>TotalCharges</li>
+  <li>Churn</li>
+</ul>
+
+    
+
+    **Target: ** Churn 
+
+    **Data Type:**  Multivariate
+
+    **Format Type:** Matrix
+
+    | Number of instances | Number of Attributes | Attribute types | Contains missing values?
+    | -------- | -------- | -------- | -------| 
+    |    5045      |  21        |  <ul><li>Categorical</li><li>Float</li><li>Integer</li><li>Boolean</li></ul>   | Yes |   
+            
+"""
+    )
 
 with tab3:
     st.header("Description of the Features are Provided Below!")
