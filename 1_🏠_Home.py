@@ -11,7 +11,7 @@ with st.container(border=True):
     st.markdown(
         "<h1 style='text-align: center;  font-size: 36px;'>Welcome to our Customer Churn Prediction App! 🔄👋</h1>",
         unsafe_allow_html=True,
-    )
+    )  # color: yellow; incklude option to change color
     st.markdown(
         "<style>div.block-container{padding-top:1rem;}</style>", unsafe_allow_html=True
     )
