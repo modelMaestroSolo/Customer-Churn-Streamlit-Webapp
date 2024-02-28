@@ -10,9 +10,9 @@ st.markdown(
     "<style>div.block-container{padding-top:1rem;}</style>", unsafe_allow_html=True
 )
 
-
+cleaned_data = st.session_state["df"]
 tab1, tab2 = st.tabs(["Exploratory Analysis", "KPI Metrics"])
 # data_train = st.write(st.session_state["df"])
 
 with tab1:
-    st.session_state["df"]
+    pass
