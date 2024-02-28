@@ -1,6 +1,7 @@
 import streamlit as st
 import pyodbc
 import pandas as pd
+import numpy as np
 import requests
 
 
@@ -52,8 +53,6 @@ conn = init_connection()
 
 
 # Perform query.
-
-
 @st.cache_data
 def run_query(query):
     with conn.cursor() as cur:
@@ -104,34 +103,47 @@ def get_github_data(url):
 df_github = get_github_data(url=url_github)
 
 
-# url_onedrive = ( "https://azubiafrica-my.sharepoint.com/personal/teachops_azubiafrica_org" +
-#                "/_layouts/15/onedrive.aspx?id=%2Fpersonal%2Fteachops%5Fazubiafrica%5Forg%" +
-#                "2FDocuments%2FCareer%20Accelerator%20Data%5FSets%2FLP2%20Datasets&ga=1" )
+@st.cache_data
+def clean_data(data_db, data_github):
 
-# #  make request
-# response = requests.get(url_onedrive)
+    dtypes = {"tenure": "int32", "MonthlyCharges": "float64", "TotalCharges": "float64"}
 
-# # check if download was successful
+    smart_features = [
+        "OnlineSecurity",
+        "OnlineBackup",
+        "DeviceProtection",
+        "TechSupport",
+        "StreamingTV",
+        "StreamingMovies",
+    ]
+    data_db[smart_features] = data_db[smart_features].fillna("No internet service")
+    data_db["MultipleLines"] = data_db["MultipleLines"].fillna("No phone service")
+    data_db["TotalCharges"] = data_db["TotalCharges"].fillna(
+        data_db["TotalCharges"].mean()
+    )
+    data_db = data_db.dropna(subset=["Churn"])
+    data_db = data_db.replace({True: "Yes", False: "No"})
 
-# if response.status_code == 200:  # status code was 403 forbidden
-#     pass
+    data_github["SeniorCitizen"] = data_github["SeniorCitizen"].replace(
+        {1: "Yes", 0: "No"}
+    )
+
+    cleaned_data = pd.concat([data_db, data_github], axis=0).reset_index(drop=True)
+
+    cleaned_data["TotalCharges"] = cleaned_data["TotalCharges"].replace({" ": np.nan})
+    cleaned_data = cleaned_data.astype(dtypes)
+    cleaned_data["TotalCharges"] = cleaned_data["TotalCharges"].fillna(
+        cleaned_data["TotalCharges"].median()
+    )
+
+    return cleaned_data
 
 
-# df_onedrive = pd.read_excel("../data/Telco-churn-last-2000.xlsx")
-# streamlit will run into error because the home page has a different relative path to the data folder
-
-
-# concat all dataset
-data_train = pd.concat([df_database, df_github])
-
-st.session_state["df"] = data_train
-
-# # save full data frame
-# with open("\data\df_train.pkl", "wb") as f:
-#      pickle.dump(data_train, f)
+cleaned_data = clean_data(data_db=df_database, data_github=df_github)
+st.session_state["df"] = cleaned_data
 
 tab1, tab2, tab3 = st.tabs(
-    ["Data Preview", "Data Surface Properties", "Content And Quality Assessment"]
+    ["Data Preview", "Data Surface Properties", "Feature Description"]
 )
 
 with tab1:
@@ -143,61 +155,129 @@ with tab1:
     )
 
     (
-        st.write(data_train)
+        st.write(cleaned_data)
         if "All Columns" in selected_features
-        else st.write(data_train[selected_features])
+        else st.write(cleaned_data[selected_features])
     )
-    st.write(f"Number of row: {data_train.shape[0]}")
-    st.write(f"Number of columns: {data_train.shape[1]}")
+    st.write(f"Number of row: {cleaned_data.shape[0]}")
+    st.write(f"Number of columns: {cleaned_data.shape[1]}")
 
 with tab2:
-    st.header("Data Surface Properties".title())
+    st.markdown("**Data Set Name:** Telco Churn Dataset")
+    st.markdown(
+        "**Abstract:**  The dataset contains comprehensive information about the characteristics and behaviours of customers, including details about whether or not they churn."
+    )
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown("**Target:** Churn")
+    with col2:
+        st.markdown("**Data Type:**  Multivariate")
+    with col3:
+        st.markdown("**Format Type:** Matrix")
+
     st.markdown(
         """
-                
-    **Data Set Name:** Telco Churn Dataset.
-
-    **Abstract:**  The dataset contains comprehensive information about the characteristics and behaviours of customers, including details about whether or not they churn.
-
-    **Features:** 
-    <ul>
-  <li>customerID</li>
-  <li>gender</li>
-  <li>SeniorCitizen</li>
-  <li>Partner</li>
-  <li>Dependents</li>
-  <li>tenure</li>
-  <li>PhoneService</li>
-  <li>MultipleLines</li>
-  <li>InternetService</li>
-  <li>OnlineSecurity</li>
-  <li>OnlineBackup</li>
-  <li>DeviceProtection</li>
-  <li>TechSupport</li>
-  <li>StreamingTV</li>
-  <li>StreamingMovies</li>
-  <li>Contract</li>
-  <li>PaperlessBilling</li>
-  <li>PaymentMethod</li>
-  <li>MonthlyCharges</li>
-  <li>TotalCharges</li>
-  <li>Churn</li>
-</ul>
-
-    
-
-    **Target: ** Churn 
-
-    **Data Type:**  Multivariate
-
-    **Format Type:** Matrix
-
     | Number of instances | Number of Attributes | Attribute types | Contains missing values?
     | -------- | -------- | -------- | -------| 
     |    5045      |  21        |  <ul><li>Categorical</li><li>Float</li><li>Integer</li><li>Boolean</li></ul>   | Yes |   
             
-"""
+""",
+        unsafe_allow_html=True,
     )
 
 with tab3:
-    st.header("Description of the Features are Provided Below!")
+    st.markdown("**Features:**")
+    with st.container(border=True):
+
+        f1, f2, f3 = st.columns(3)
+
+        with f1:
+            st.markdown(
+                """<ul>
+            <li>customerID</li>
+            <li>gender</li>
+            <li>SeniorCitizen</li>
+            <li>Partner</li>
+            <li>Dependents</li>
+            <li>tenure</li>
+            <li>PhoneService</li>
+            </ul>
+            """,
+                unsafe_allow_html=True,
+            )
+
+        with f2:
+            st.markdown(
+                """<ul>
+            <li>MultipleLines</li>
+            <li>InternetService</li>
+            <li>OnlineSecurity</li>
+            <li>OnlineBackup</li>
+            <li>DeviceProtection</li>
+            <li>TechSupport</li>
+            <li>StreamingTV</li>
+            </ul>
+        """,
+                unsafe_allow_html=True,
+            )
+
+        with f3:
+            st.markdown(
+                """<ul>
+            <li>StreamingMovies</li>
+            <li>Contract</li>
+            <li>PaperlessBilling</li>
+            <li>PaymentMethod</li>
+            <li>MonthlyCharges</li>
+            <li>TotalCharges</li>
+            <li>Churn</li>
+            </ul>
+        """,
+                unsafe_allow_html=True,
+            )
+    st.markdown("#### The following describes the columns present in the data:")
+    st.markdown(
+        """
+**Gender** -- Whether the customer is a male or a female
+
+**SeniorCitizen** -- Whether a customer is a senior citizen or not
+
+**Partner** -- Whether the customer has a partner or not (Yes, No)
+
+**Dependents** -- Whether the customer has dependents or not (Yes, No)
+
+**Tenure** -- Number of months the customer has stayed with the company
+
+**Phone Service** -- Whether the customer has a phone service or not (Yes, No)
+
+**MultipleLines** -- Whether the customer has multiple lines or not
+
+**InternetService** -- Customer's internet service provider (DSL, Fiber Optic, No)
+
+**OnlineSecurity** -- Whether the customer has online security or not (Yes, No, No Internet)
+
+**OnlineBackup** -- Whether the customer has online backup or not (Yes, No, No Internet)
+
+**DeviceProtection** -- Whether the customer has device protection or not (Yes, No, No internet service)
+
+**TechSupport** -- Whether the customer has tech support or not (Yes, No, No internet)
+
+**StreamingTV** -- Whether the customer has streaming TV or not (Yes, No, No internet service)
+
+**StreamingMovies** -- Whether the customer has streaming movies or not (Yes, No, No Internet service)
+
+**Contract** -- The contract term of the customer (Month-to-Month, One year, Two year)
+
+**PaperlessBilling** -- Whether the customer has paperless billing or not (Yes, No)
+
+**Payment Method** -- The customer's payment method (Electronic check, mailed check, Bank transfer(automatic), Credit card(automatic))
+
+**MonthlyCharges** -- The amount charged to the customer monthly
+
+**TotalCharges** -- The total amount charged to the customer
+
+**Churn** -- Whether the customer churned or not (Yes or No)
+"""
+    )

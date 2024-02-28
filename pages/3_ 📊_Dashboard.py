@@ -13,3 +13,6 @@ st.markdown(
 
 tab1, tab2 = st.tabs(["Exploratory Analysis", "KPI Metrics"])
 # data_train = st.write(st.session_state["df"])
+
+with tab1:
+    st.session_state["df"]

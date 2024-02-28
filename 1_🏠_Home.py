@@ -9,7 +9,7 @@ st.set_page_config(
 ## put title element in container
 with st.container(border=True):
     st.markdown(
-        "<h1 style='text-align: center; color: yellow; font-size: 36px;'>Welcome to our Customer Churn Prediction App! 🔄👋</h1>",
+        "<h1 style='text-align: center;  font-size: 36px;'>Welcome to our Customer Churn Prediction App! 🔄👋</h1>",
         unsafe_allow_html=True,
     )
     st.markdown(
