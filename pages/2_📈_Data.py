@@ -35,7 +35,8 @@ st.write(
 
 # Initialize connection.
 # Uses st.cache_resource to only run once.
-@st.cache_resource(show_spinner="Establishing Database Connection...")
+
+@st.cache_resource(show_spinner="Establishing connection to Database...")
 def init_connection():
     return pyodbc.connect(
         "DRIVER={ODBC Driver 17 for SQL Server};SERVER="
@@ -103,7 +104,7 @@ def get_github_data(url):
 df_github = get_github_data(url=url_github)
 
 
-@st.cache_data(show_spinner="Cleaning Data...")
+@st.cache_data(show_spinner="Cleaning Retrieved Data...")
 def clean_data(data_db, data_github):
 
     dtypes = {"tenure": "int32", "MonthlyCharges": "float64", "TotalCharges": "float64"}
