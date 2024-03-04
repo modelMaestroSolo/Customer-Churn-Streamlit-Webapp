@@ -35,7 +35,7 @@ st.write(
 
 # Initialize connection.
 # Uses st.cache_resource to only run once.
-@st.cache_resource
+@st.cache_resource(show_spinner="Establishing connection to Database...")
 def init_connection():
     return pyodbc.connect(
         "DRIVER={ODBC Driver 17 for SQL Server};SERVER="
@@ -53,7 +53,7 @@ conn = init_connection()
 
 
 # Perform query.
-@st.cache_data
+@st.cache_data(show_spinner="Retrieving Data from Database...")
 def run_query(query):
     with conn.cursor() as cur:
         cur.execute(query)
@@ -73,7 +73,7 @@ df_database = pd.DataFrame.from_records(
 url_github = "https://github.com/Azubi-Africa/Career_Accelerator_LP2-Classifcation/blob/main/LP2_Telco-churn-second-2000.csv"
 
 
-@st.cache_data
+@st.cache_data(show_spinner="Pulling Data from Github...")
 def get_github_data(url):
     """This function gets data from github repo and coverts it to a datafraome
 
@@ -103,7 +103,7 @@ def get_github_data(url):
 df_github = get_github_data(url=url_github)
 
 
-@st.cache_data
+@st.cache_data(show_spinner="Cleaning Retrieved Data...")
 def clean_data(data_db, data_github):
 
     dtypes = {"tenure": "int32", "MonthlyCharges": "float64", "TotalCharges": "float64"}
