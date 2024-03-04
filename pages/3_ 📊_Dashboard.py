@@ -1,14 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import seaborn as sns
-import matplotlib.pyplot as plt
-import matplotlib
 from typing import List, Tuple
-
-matplotlib.use(
-    "Agg"
-)  # sets matplotlib backend to "Agg"- a non-interactive backend. prevents usewarning
 
 
 # function to set up page configuration
