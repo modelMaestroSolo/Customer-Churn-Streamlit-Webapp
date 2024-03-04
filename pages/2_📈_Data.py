@@ -35,6 +35,7 @@ st.write(
 
 # Initialize connection.
 # Uses st.cache_resource to only run once.
+
 @st.cache_resource(show_spinner="Establishing connection to Database...")
 def init_connection():
     return pyodbc.connect(
