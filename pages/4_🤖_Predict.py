@@ -126,7 +126,7 @@ def display_sidebar_form() -> dict:
         return input_dict
 
 
-@st.cache_resource(show_spinner="Loading Model Components...")
+@st.cache_resource(show_spinner="Please wait! Loading Model Components...")
 def get_model_components():
     xgb_url = "https://github.com/modelMaestroSolo/Customer_churn_classification/raw/main/export/ml.pkl"
 
@@ -182,7 +182,7 @@ def display_options_summary(inputs: dict):
         st.write("streaming Movies:", inputs["StreamingMovies"])
 
 
-def make_prediction(loaded_components: List[str], inputs: List[str]) -> Tuple[str]:
+def make_prediction(loaded_components: List[str], inputs: dict) -> Tuple[str]:
 
     reference_features = loaded_components["reference_features"]
     cat_preprocessor = loaded_components["cat_preprocessor"]
@@ -238,25 +238,31 @@ def make_prediction(loaded_components: List[str], inputs: List[str]) -> Tuple[st
         prediction = classifier.predict(input_df_prepared)
         predict_proba = classifier.predict_proba(input_df_prepared)
         predict_proba = pd.DataFrame(
-            predict_proba, columns=["No", "Yes"], index=["Prob"]
+            predict_proba, columns=["No", "Yes"], index=["Probability"]
         ).T
 
+    prediction = prediction[0]
     return input_df, selected_model, prediction, predict_proba
 
 
 def display_prediction(prediction: str, predict_proba: float):
-    with st.container(height=450, border=True):
-        st.markdown("#### Churn Prediction")
-        st.write("Will Customer Churn?")
+    with st.container(border=True):
+
+        col1, col2 = st.columns(2)
         if prediction == "No":
-            st.success("No")
-            st.write("With Prediction Probability:")
-            st.table(predict_proba)
+            with col1:
+                st.markdown("### 🤖 CHURN PREDICTION")
+                st.success("""### ✨🎉 Hurray!\n### The Customer will not Churn!""")
+            with col2:
+                st.write("### 🎲 PREDICTION PROBABILITY")
+                st.table(predict_proba)
         else:
-            prediction == "Yes"
-            st.warning("Yes")
-            st.write("With Prediction Probability:")
-            st.table(predict_proba)
+            with col1:
+                st.markdown("### 🤖 CHURN PREDICTION")
+                st.warning("### ⚠️🚨 Warning!\n### The Customer will Churn!")
+            with col2:
+                st.write("### 🎲 PREDICTION PROBABILITY")
+                st.table(predict_proba)
 
 
 # function to store prediction history in a csv file
@@ -284,18 +290,15 @@ def main():
     inputs = display_sidebar_form()
     submitted = inputs["submitted"]
 
-    summary, prediction_box = st.columns([3, 1])
-
     if submitted:
-        with summary:
-            display_options_summary(inputs=inputs)
+        loaded_components = get_model_components()
+        input_df, selected_model, prediction, predict_proba = make_prediction(
+            loaded_components, inputs
+        )
 
-        with prediction_box:
-            loaded_components = get_model_components()
-            input_df, selected_model, prediction, predict_proba = make_prediction(
-                loaded_components, inputs
-            )
-            display_prediction(prediction=prediction, predict_proba=predict_proba)
+        display_prediction(prediction=prediction, predict_proba=predict_proba)
+
+        display_options_summary(inputs=inputs)
 
         store_history(
             input_df=input_df, selected_model=selected_model, prediction=prediction
