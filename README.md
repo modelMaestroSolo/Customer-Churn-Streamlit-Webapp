@@ -76,7 +76,7 @@
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-![image](https://github.com/coderacheal/Attrition-Meter/assets/97846040/eb717bf3-d42b-4005-8080-276b69f08167)
+![image](https://github.com/modelMaestroSolo/Customer-Churn-Streamlit-Webapp/blob/main/assets/predict_page1.PNG)
 
 
 <!-- GETTING STARTED -->
