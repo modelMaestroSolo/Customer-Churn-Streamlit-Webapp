@@ -25,7 +25,7 @@ def set_page_config():
 
 def access_data():
     if "df" not in st.session_state:
-        st.warning("Visit the Data page to automatically load data for the dashbaord!")
+        st.info("Visit the Data page to automatically load data for the dashbaord!")
         st.stop()
     else:
         cleaned_data = st.session_state["df"]

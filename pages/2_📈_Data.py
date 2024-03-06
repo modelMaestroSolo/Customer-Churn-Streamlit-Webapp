@@ -158,10 +158,10 @@ def main():
 
     with tab1:
         st.header("Proprietory Data from Vodafone")
-        selected_features = st.multiselect(
+        selected_features = st.selectbox(
             "View specific features?",
             options=["All Columns", "Numeric Features", "Categorical Features"],
-            default="All Columns",
+            index=0,
         )
 
         numerical_cols = ["tenure", "MonthlyCharges", "TotalCharges"]
@@ -182,11 +182,9 @@ def main():
             "Contract",
         ]
 
-        if "Numeric Features" in selected_features and len(selected_features) == 1:
+        if selected_features == "Numeric Features":
             st.write(cleaned_data[numerical_cols])
-        elif (
-            "Categorical Features" in selected_features and len(selected_features) == 1
-        ):
+        elif selected_features == "Categorical Features":
             st.write(cleaned_data[categorical_cols])
         else:
             st.write(cleaned_data)
