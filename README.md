@@ -100,7 +100,7 @@ Clone this repository to your desired folder:
 
 ```sh
   cd my-folder
-  git clone https://github.com/coderacheal/Attrition-Meter.git
+  git clone https://github.com/modelMaestroSolo/Customer-Churn-Streamlit-Webapp.git
 ```
 
 Change into the cloned repository
