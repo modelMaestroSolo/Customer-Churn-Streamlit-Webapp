@@ -230,16 +230,18 @@ def make_prediction(loaded_components: List[str], inputs: dict) -> Tuple[str]:
         classifier = loaded_components["random_forest_classifier"]
         prediction = classifier.predict(input_df_prepared)
         predict_proba = classifier.predict_proba(input_df_prepared)
-        predict_proba = pd.DataFrame(
-            predict_proba, columns=["No", "Yes"], index=["Prob"]
-        ).T
     else:
         classifier = loaded_components["gradient_boosting_classifier"]
         prediction = classifier.predict(input_df_prepared)
         predict_proba = classifier.predict_proba(input_df_prepared)
-        predict_proba = pd.DataFrame(
-            predict_proba, columns=["No", "Yes"], index=["Probability"]
-        ).T
+
+    predict_proba = pd.DataFrame(
+        predict_proba * 100,
+        columns=["No", "Yes"],
+        index=["Percentage Probabilities"],
+    ).T
+    predict_proba = predict_proba.round(2)
+    predict_proba = predict_proba["Percentage Probabilities"].astype(str) + "%"
 
     prediction = prediction[0]
     return input_df, selected_model, prediction, predict_proba
