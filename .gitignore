@@ -1,3 +1,6 @@
+__pycache__/
+*.py[cod]
+
 /customer-churn-app/
 /customer-churn-streamlit-webapp.code-workspace
 /.streamlit/
