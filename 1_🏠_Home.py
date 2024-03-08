@@ -1,11 +1,37 @@
 import streamlit as st
-import streamlit.components.v1 as components
+import streamlit_authenticator as stauth
+import yaml
+from yaml.loader import SafeLoader
+
+
+def login():
+    with open("./config.yaml") as file:
+        config = yaml.load(file, Loader=SafeLoader)
+
+    authenticator = stauth.Authenticate(
+        config["credentials"],
+        config["cookie"]["name"],
+        config["cookie"]["key"],
+        config["cookie"]["expiry_days"],
+        config["preauthorized"],
+    )
+    authenticator.login(location="main")
+    if st.session_state["authentication_status"]:
+        authenticator.logout(location="sidebar", key="logout")
+        st.write(f'Welcome *{st.session_state["name"]}*')
+
+    elif st.session_state["authentication_status"] is False:
+        st.error("Username/password is incorrect")
+
+    else:
+        st.warning("Please enter your username and password")
 
 
 ## page configuration settings
-st.set_page_config(
-    page_title="customer-churn", page_icon=":repeat: :wave:", layout="wide"
-)
+def set_page_config():
+    st.set_page_config(
+        page_title="customer-churn", page_icon=":repeat: :wave:", layout="wide"
+    )
 
 
 def display_contact():
@@ -41,7 +67,7 @@ def display_contact():
         <a href="https://github.com/modelMaestroSolo" style="float:center">
         <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" width="35px"></img></a>
         <a href="https://twitter.com/modelmaestroSol" style="float:center">
-        <img src="http://www.doigtdecole.com/wp-content/uploads/2020/03/logo-rond-twitter.png" width="35px"></img></a>
+        <img src="https://static.toiimg.com/thumb/msid-102075304,width-400,resizemode-4/102075304.jpg" width="35px"></img></a>
         <a href="https://www.linkedin.com/in/yebsolomon" style="float:center">
         <img src="https://i.pinimg.com/736x/96/8e/a6/968ea62882943e88bbd318ae5fa67429.jpg" width="35px"></img></a>
         <a href="mailto:modelmaestrosolo@gmail.com" style="float:center">
@@ -52,59 +78,80 @@ def display_contact():
 
 
 ## put title element in container
-with st.container(border=True):
-    st.markdown(
-        "<h1 style='text-align: center;  font-size: 36px;'>Welcome to our Customer Churn Prediction App! 🔄👋</h1>",
-        unsafe_allow_html=True,
-    )  # color: yellow; incklude option to change color
-    st.markdown(
-        "<style>div.block-container{padding-top:1rem;}</style>", unsafe_allow_html=True
-    )
 
-    st.write(
+
+def display_home_title():
+    with st.container(border=True):
+        st.markdown(
+            "<h1 style='text-align: center;  font-size: 36px;'>Welcome to The Customer Churn Prediction App! 🔄👋</h1>",
+            unsafe_allow_html=True,
+        )  # color: yellow; incklude option to change color
+        st.markdown(
+            "<style>div.block-container{padding-top:1rem;}</style>",
+            unsafe_allow_html=True,
+        )
+
+        st.write(
+            """
+        Our app utilizes trained machine learning model to analyze customer characteristics 
+        and predict which customers are likely to churn. 
+        
         """
-       Our app utilizes trained machine learning model to analyze customer characteristics 
-       and predict which customers are likely to churn. 
-       
-    """
-    )
-    st.write(
+        )
+        st.write(
+            """
+        Simply input the relevant customer information, and let our model provide insights
+        into potential churn risks. _Start exploring now!_
+        
         """
-       Simply input the relevant customer information, and let our model provide insights
-       into potential churn risks. _Start exploring now!_
-       
-       """
-    )
-
-col1, col2 = st.columns(2)
-
-with col1:
-    st.subheader("Key Features")
-    st.markdown(
-        """     
-                - **A Data Page:** explore the content of proprietory data loaded in real-time form the remote server
-                - **A Dashboard Page:** presents visualizations on both the exploratory data and the KPIs
-                - **A Predict Page:** predict customer churn using a selected model of choice
-                - **A History Page:** contains saved predictions for further analysis later. Users can view the history of their prediction input values
-        """
-    )
+        )
 
 
-with col2:
-    st.subheader("User Benefits")
-    st.markdown(
-        """
-                - Make data-driven decisions by leveraging the power of predictive analytics
-                - Free to Select from a list classification models
-                - Simple and straight forward. 
-                """
-    )
-    st.subheader("Instruction")
-    st.markdown(
-        """
-                - Use the side bar to navigate the pages of the App
-                - Follow instructions on each page to interact with the App
-                """
-    )
+def display_home_body():
+    col1, col2 = st.columns(2)
 
-display_contact()
+    with col1:
+        st.subheader("Key Features")
+        st.markdown(
+            """     
+                    - **A Data Page:** explore the content of proprietory data loaded in real-time form the remote server
+                    - **A Dashboard Page:** presents visualizations on both the exploratory data and the KPIs
+                    - **A Predict Page:** predict customer churn using a selected model of choice
+                    - **A History Page:** contains saved predictions for further analysis later. Users can view the history of their prediction input values
+            """
+        )
+
+    with col2:
+        st.subheader("User Benefits")
+        st.markdown(
+            """
+                    - Make data-driven decisions by leveraging the power of predictive analytics
+                    - Free to Select from a list classification models
+                    - Simple and straight forward. 
+                    """
+        )
+        st.subheader("Instruction")
+        st.markdown(
+            """
+                    - Use the side bar to navigate the pages of the App
+                    - Follow instructions on each page to interact with the App
+                    """
+        )
+
+
+def main():
+    display_contact()
+
+    display_home_title()
+
+    display_home_body()
+
+
+if __name__ == "__main__":
+
+    set_page_config()
+
+    if not st.session_state.get("authentication_status", False):
+        login()
+    else:
+        main()

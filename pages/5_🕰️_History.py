@@ -1,8 +1,34 @@
 import streamlit as st
+import streamlit_authenticator as stauth
 import numpy as np
 import pandas as pd
 from typing import List, Tuple
 import os
+import yaml
+from yaml.loader import SafeLoader
+
+
+def login():
+    with open("./config.yaml") as file:
+        config = yaml.load(file, Loader=SafeLoader)
+
+    authenticator = stauth.Authenticate(
+        config["credentials"],
+        config["cookie"]["name"],
+        config["cookie"]["key"],
+        config["cookie"]["expiry_days"],
+        config["preauthorized"],
+    )
+    authenticator.login(location="main")
+    if st.session_state["authentication_status"]:
+        authenticator.logout(location="sidebar", key="logout")
+        st.write(f'Welcome *{st.session_state["name"]}*')
+
+    elif st.session_state["authentication_status"] is False:
+        st.error("Username/password is incorrect")
+
+    else:
+        st.warning("Please enter your username and password")
 
 
 # function to set up page configuration
@@ -26,11 +52,22 @@ def display_title_container():
 
 
 def display_history():
-    data = pd.read_csv("./data/history.csv")
-    st.dataframe(data)
+    try:
+        data = pd.read_csv("./data/history.csv")
+        st.dataframe(data)
+    except FileNotFoundError:
+        st.info("No predictions have been made yet!")
+
+
+def main():
+    display_title_container()
+    display_history()
 
 
 if __name__ == "__main__":
     set_page_config()
-    display_title_container()
-    display_history()
+
+    if not st.session_state.get("authentication_status", False):
+        login()
+    else:
+        main()

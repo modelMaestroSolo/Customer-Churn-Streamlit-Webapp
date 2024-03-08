@@ -1,9 +1,36 @@
 import streamlit as st
-import pyodbc
+import streamlit_authenticator as stauth
+import yaml
+from yaml.loader import SafeLoader
+
+# import pyodbc
 import pandas as pd
 import numpy as np
 import requests
 from typing import List, Tuple, Union
+
+
+def login():
+    with open("./config.yaml") as file:
+        config = yaml.load(file, Loader=SafeLoader)
+
+    authenticator = stauth.Authenticate(
+        config["credentials"],
+        config["cookie"]["name"],
+        config["cookie"]["key"],
+        config["cookie"]["expiry_days"],
+        config["preauthorized"],
+    )
+    authenticator.login(location="main")
+    if st.session_state["authentication_status"]:
+        authenticator.logout(location="sidebar", key="logout")
+        st.write(f'Welcome *{st.session_state["name"]}*')
+
+    elif st.session_state["authentication_status"] is False:
+        st.error("Username/password is incorrect")
+
+    else:
+        st.warning("Please enter your username and password")
 
 
 ## set page configuration, title and description
@@ -34,35 +61,36 @@ def set_page_config() -> None:
 # Initialize connection.
 # Uses st.cache_resource to only run once.
 
+#################### extracting data from database #####################################
 
-@st.cache_resource(show_spinner="Establishing connection to Database...")
-def init_connection() -> pyodbc.Connection:
-    return pyodbc.connect(
-        "DRIVER={ODBC Driver 17 for SQL Server};SERVER="
-        + st.secrets["server"]
-        + ";DATABASE="
-        + st.secrets["database"]
-        + ";UID="
-        + st.secrets["username"]
-        + ";PWD="
-        + st.secrets["password"]
-    )
-
-
-# Perform query.
-@st.cache_data(show_spinner="Retrieving Data from Database...")
-def run_query(query: str, _conn: pyodbc.Connection):
-    with _conn.cursor() as cur:
-        cur.execute(query)
-        return cur.fetchall(), cur.description
+# @st.cache_resource(show_spinner="Establishing connection to Database...")
+# def init_connection() -> pyodbc.Connection:
+#     return pyodbc.connect(
+#         "DRIVER={ODBC Driver 17 for SQL Server};SERVER="
+#         + st.secrets["server"]
+#         + ";DATABASE="
+#         + st.secrets["database"]
+#         + ";UID="
+#         + st.secrets["username"]
+#         + ";PWD="
+#         + st.secrets["password"]
+#     )
 
 
-# def function to create dataframe with data from database
-def create_dataframe_db(rows: List[Tuple], description) -> Union[pd.DataFrame, List]:
-    columns = [column[0] for column in description]  # obtain column names.
-    df_database = pd.DataFrame.from_records(rows, columns=columns)  # create dataframe
+# # Perform query.
+# @st.cache_data(show_spinner="Retrieving Data from Database...")
+# def run_query(query: str, _conn: pyodbc.Connection):
+#     with _conn.cursor() as cur:
+#         cur.execute(query)
+#         return cur.fetchall(), cur.description
 
-    return df_database, columns
+
+# # def function to create dataframe with data from database
+# def create_dataframe_db(rows: List[Tuple], description) -> Union[pd.DataFrame, List]:
+#     columns = [column[0] for column in description]  # obtain column names.
+#     df_database = pd.DataFrame.from_records(rows, columns=columns)  # create dataframe
+
+#     return df_database
 
 
 @st.cache_data(show_spinner="Pulling Data from Github...")
@@ -132,14 +160,14 @@ def clean_data(data_db, data_github):
 def main():
     set_page_config()
 
-    conn = init_connection()  # establish connection
+    # conn = init_connection()  # establish connection
 
-    rows, description = run_query(
-        query="SELECT * FROM dbo.LP2_Telco_churn_first_3000;", _conn=conn
-    )
+    # rows, description = run_query(
+    #     query="SELECT * FROM dbo.LP2_Telco_churn_first_3000;", _conn=conn
+    # )
 
-    df_database, columns = create_dataframe_db(rows=rows, description=description)
-
+    # df_database = create_dataframe_db(rows=rows, description=description)
+    df_database = pd.read_csv("./data/Telco-churn-first-3000.csv")
     url_github = (
         "https://github.com/Azubi-Africa/Career_Accelerator_LP2-Classifcation/"
         + "blob/main/LP2_Telco-churn-second-2000.csv"
@@ -311,4 +339,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+
+    if not st.session_state.get("authentication_status", False):
+        login()
+    else:
+        main()
