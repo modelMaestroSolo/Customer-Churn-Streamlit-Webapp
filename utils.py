@@ -2,9 +2,10 @@ import streamlit as st
 import streamlit_authenticator as stauth
 import yaml
 from yaml.loader import SafeLoader
+from typing import Callable
 
 
-def login():
+def login(main: callable):
     with open("./config.yaml") as file:
         config = yaml.load(file, Loader=SafeLoader)
 
@@ -17,11 +18,11 @@ def login():
     )
     authenticator.login(location="main")
     if st.session_state["authentication_status"]:
-        authenticator.logout(location="sidebar", key="logout")
-        st.write(f'Welcome *{st.session_state["name"]}*')
+        st.sidebar.header(f'Welcome *{st.session_state["name"]}*!')
+        main()
 
     elif st.session_state["authentication_status"] is False:
-        st.error("Username/password is incorrect")
+        st.error("Oops! Username/password is incorrect")
 
     else:
         st.warning("Please enter your username and password")
