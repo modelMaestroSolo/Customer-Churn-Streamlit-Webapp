@@ -41,8 +41,4 @@ def main():
 
 if __name__ == "__main__":
     set_page_config()
-
-    if not st.session_state.get("authentication_status", False):
-        login()
-    else:
-        main()
+    login(main=main)

@@ -12,6 +12,9 @@ def set_page_config():
         page_icon=":bar_chart:",
         layout="wide",
     )
+
+
+def display_title():
     st.header(":bar_chart: Churn Insights: Understanding Customer Retention")
     st.markdown(
         "<style>div.block-container{padding-top:1.5rem;}</style>",
@@ -351,7 +354,7 @@ def display_data_table(data: pd.DataFrame):
 
 
 def main():
-    set_page_config()  # set page configuration
+    display_title()
 
     cleaned_data = access_data()  # access data from session state
 
@@ -427,7 +430,6 @@ def main():
 
 
 if __name__ == "__main__":
-    if not st.session_state.get("authentication_status", False):
-        login()
-    else:
-        main()
+    set_page_config()  # set page configuration
+
+    login(main=main)

@@ -11,6 +11,9 @@ from utils import login
 ## set page configuration, title and description
 def set_page_config() -> None:
     st.set_page_config(page_title="Churn Data", page_icon=":chart_with_upwards_trend:")
+
+
+def display_title():
     st.title(":chart_with_upwards_trend: Customer Churn Data")
     st.markdown(
         "<style>div.block-container{padding-top:1rem;}</style>", unsafe_allow_html=True
@@ -133,8 +136,7 @@ def clean_data(data_db, data_github):
 
 
 def main():
-    set_page_config()
-
+    display_title()
     # conn = init_connection()  # establish connection
 
     # rows, description = run_query(
@@ -314,8 +316,6 @@ def main():
 
 
 if __name__ == "__main__":
+    set_page_config()
 
-    if not st.session_state.get("authentication_status", False):
-        login()
-    else:
-        main()
+    login(main=main)

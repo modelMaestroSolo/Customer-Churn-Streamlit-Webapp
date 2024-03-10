@@ -286,7 +286,7 @@ def store_history(input_df: pd.DataFrame, selected_model: str, prediction: str):
 
 
 def main():
-    set_page_config()
+    
 
     display_title_container()
 
@@ -320,7 +320,6 @@ def main():
 
 
 if __name__ == "__main__":
-    if not st.session_state.get("authentication_status", False):
-        login()
-    else:
-        main()
+    set_page_config()
+    
+    login(main=main)
